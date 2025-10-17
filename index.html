@@ -109,7 +109,6 @@
   </div>
 
   <script>
-    // ======= DOM helpers =======
     const $ = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 
@@ -126,7 +125,6 @@
     const btnClear = $('#clearBtn');
     const btnShuffle = $('#shuffleBtn');
 
-    // ======= Moods =======
     const MOODS = [
       "Happy","Chill","Energetic","Sad","Romantic","Focus",
       "Confident","Melancholic","Uplifting","Party","Aggressive",
@@ -144,7 +142,6 @@
       });
     };
 
-    // Selected state helpers
     const getSelectedMoods = () => $$('#moodOptions input:checked').map(i => i.value);
 
     const setSelectedChips = () => {
@@ -157,7 +154,6 @@
       });
     };
 
-    // Dropdown behavior
     toggle.addEventListener('click', () => {
       dropdown.classList.toggle('open');
       toggle.setAttribute('aria-expanded', dropdown.classList.contains('open'));
@@ -167,7 +163,6 @@
       if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
 
-    // Filter moods
     filterInput.addEventListener('input', () => {
       const q = filterInput.value.toLowerCase();
       $$('#moodOptions label').forEach(lbl => {
@@ -176,7 +171,6 @@
       });
     });
 
-    // Select all
     selectAllBtn.addEventListener('click', () => {
       const visible = $$('#moodOptions label').filter(lbl => lbl.style.display !== 'none');
       const inputs = visible.map(v => v.querySelector('input'));
@@ -185,10 +179,8 @@
       setSelectedChips();
     });
 
-    // Update chips on change
     optionsWrap.addEventListener('change', setSelectedChips);
 
-    // ======= Azure Function Integration =======
     const toYT = (title, artist) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
 
     const render = (items) => {
@@ -235,7 +227,6 @@
       }
     };
 
-    // Buttons
     btnRecommend.addEventListener('click', fetchRecommendations);
     btnShuffle.addEventListener('click', fetchRecommendations);
     btnClear.addEventListener('click', () => {
@@ -244,7 +235,6 @@
       results.innerHTML = '';
     });
 
-    // Init
     buildOptions();
     setSelectedChips();
   </script>
