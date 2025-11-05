@@ -6,7 +6,7 @@ After setting up the static app, I created several Azure resources to bring the 
 
 Azure Cosmos DB – I created a NoSQL database named MoodRecommenderDB with a Songs container to store song data (title, artist, mood, genre, and YouTube URL).
 
-![Example Image](DataExplorer.png)
+![Example Image](project_details/DataExplorer.png)
 
 Azure Function App – I built a Python function called GetRecommendations that connected to Cosmos DB and returned songs based on the mood sent from the frontend.
 
