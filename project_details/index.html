@@ -114,7 +114,6 @@
 
     const dropdown = $('#moodDropdown');
     const toggle = $('#dropdownToggle');
-    const menu = dropdown.querySelector('.dropdown-menu');
     const optionsWrap = $('#moodOptions');
     const filterInput = $('#moodFilter');
     const selectAllBtn = $('#selectAll');
@@ -155,7 +154,7 @@
     };
 
     toggle.addEventListener('click', () => {
-      dropdown.classList.toggle('open');
+      dropdown.classList.toggle('open'));
       toggle.setAttribute('aria-expanded', dropdown.classList.contains('open'));
       if (dropdown.classList.contains('open')) filterInput.focus();
     });
@@ -181,7 +180,8 @@
 
     optionsWrap.addEventListener('change', setSelectedChips);
 
-    const toYT = (title, artist) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
+    const toYT = (title, artist) =>
+      `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
 
     const render = (items) => {
       results.innerHTML = '';
@@ -214,7 +214,7 @@
       }
 
       try {
-        const response = await fetch('https://moodbasedfunction.azurewebsites.net/api/GetRecommendations', {
+        const response = await fetch('https://mbfunction.azurewebsites.net/api/GetRecommendations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ moods: selected })
