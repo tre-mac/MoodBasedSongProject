@@ -63,6 +63,8 @@
 
     .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .badge{font-size:.75rem;padding:4px 8px;border-radius:999px;background:#10143a;border:1px solid rgba(255,255,255,.12);color:#b6c3ff}
+    .link{margin-left:auto}
+    .link a{color:var(--accent);text-decoration:none;font-weight:700}
 
     footer{margin:30px 0;color:var(--muted);font-size:.9rem}
   </style>
@@ -79,18 +81,20 @@
     <section class="card">
       <div class="controls">
         <div class="dropdown" id="moodDropdown">
-          <button class="btn" id="dropdownToggle" type="button" aria-haspopup="true" aria-expanded="false">
+          <button class="btn" id="dropdownToggle" type="button">
             <span id="dropdownLabel">Select moods (all that apply)</span>
             <span>▾</span>
           </button>
-          <div class="dropdown-menu" role="menu" aria-label="Mood selector">
+
+          <div class="dropdown-menu">
             <div class="search">
-              <input type="text" id="moodFilter" placeholder="Filter moods..." aria-label="Filter moods" />
+              <input type="text" id="moodFilter" placeholder="Filter moods..." />
               <button class="btn btn-ghost" id="selectAll">Select all</button>
             </div>
             <div id="moodOptions" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
           </div>
-          <div class="chips" id="selectedChips" aria-live="polite"></div>
+
+          <div class="chips" id="selectedChips"></div>
         </div>
 
         <button class="btn" id="recommendBtn" type="button">🎵 Get recommendations</button>
@@ -102,22 +106,21 @@
     </section>
 
     <footer>
-      Tip: Results are ranked by how many of your moods each track matches.
+      Tip: Results are ranked by how many of your moods each track matches. Click a title to open YouTube.
     </footer>
   </div>
 
   <script>
-    const $ = (sel, root=document) => root.querySelector(sel);
-    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
     const dropdown = $('#moodDropdown');
     const toggle = $('#dropdownToggle');
     const optionsWrap = $('#moodOptions');
     const filterInput = $('#moodFilter');
-    const selectAllBtn = $('#selectAll');
     const chips = $('#selectedChips');
-
     const results = $('#results');
+
     const btnRecommend = $('#recommendBtn');
     const btnClear = $('#clearBtn');
     const btnShuffle = $('#shuffleBtn');
@@ -131,72 +134,66 @@
     const buildOptions = () => {
       optionsWrap.innerHTML = '';
       MOODS.forEach(m => {
-        const id = 'mood_' + m.replace(/\s+/g, '').toLowerCase();
+        const id = 'mood_' + m.toLowerCase();
         const row = document.createElement('label');
-        row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+        row.style.display = 'flex';
+        row.style.gap = '8px';
         row.innerHTML = `<input type="checkbox" value="${m}" id="${id}"> <span>${m}</span>`;
         optionsWrap.appendChild(row);
       });
     };
 
-    const getSelectedMoods = () => $$('#moodOptions input:checked').map(i => i.value);
+    const getSelectedMoods = () =>
+      $$('#moodOptions input:checked').map(i => i.value);
 
     const setSelectedChips = () => {
       chips.innerHTML = '';
       const selected = getSelectedMoods();
-      $('#dropdownLabel').textContent = selected.length ? `${selected.length} mood${selected.length>1?'s':''} selected` : 'Select moods (all that apply)';
+      $('#dropdownLabel').textContent =
+        selected.length ? `${selected.length} selected` : 'Select moods (all that apply)';
       selected.forEach(m => {
         const c = document.createElement('span');
-        c.className = 'chip'; c.textContent = m; chips.appendChild(c);
+        c.className = 'chip';
+        c.textContent = m;
+        chips.appendChild(c);
       });
     };
 
     toggle.addEventListener('click', () => {
-      dropdown.classList.toggle('open');  <!-- FIXED -->
-      toggle.setAttribute('aria-expanded', dropdown.classList.contains('open'));
-      if (dropdown.classList.contains('open')) filterInput.focus();
+      dropdown.classList.toggle('open');
     });
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
       if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
 
+    $('#moodOptions').addEventListener('change', setSelectedChips);
     filterInput.addEventListener('input', () => {
       const q = filterInput.value.toLowerCase();
       $$('#moodOptions label').forEach(lbl => {
-        const txt = lbl.textContent.toLowerCase();
-        lbl.style.display = txt.includes(q) ? 'flex' : 'none';
+        lbl.style.display = lbl.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
       });
     });
 
-    selectAllBtn.addEventListener('click', () => {
-      const visible = $$('#moodOptions label').filter(lbl => lbl.style.display !== 'none');
-      const inputs = visible.map(v => v.querySelector('input'));
-      const allChecked = inputs.every(i => i.checked);
-      inputs.forEach(i => i.checked = !allChecked);
-      setSelectedChips();
-    });
+    const toYT = (title, artist) =>
+      `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
 
-    optionsWrap.addEventListener('change', setSelectedChips);
-
-    const toYT = (title, artist) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
-
-    const render = (items) => {
+    const render = items => {
       results.innerHTML = '';
-      if (!items || !items.length){
-        results.innerHTML = '<div class="sub">No recommendations found. Try broadening your mood selection.</div>';
+      if (!items?.length) {
+        results.innerHTML = `<div class="sub">No recommendations found.</div>`;
         return;
       }
       items.forEach(song => {
         const el = document.createElement('article');
         el.className = 'song';
         el.innerHTML = `
-          <div class="score" title="Matched moods">✔</div>
+          <div class="score">✔</div>
           <div style="flex:1">
-            <h3><a href="${toYT(song.title, song.artist)}" target="_blank" rel="noopener">${song.title}</a></h3>
+            <h3><a href="${toYT(song.title, song.artist)}" target="_blank">${song.title}</a></h3>
             <div class="artist">${song.artist} • ${song.year || ''}</div>
             <div class="meta">
-              ${(song.moods || []).map(mm => `<span class="badge">${mm}</span>`).join('')}
+              ${(song.moods || []).map(m => `<span class="badge">${m}</span>`).join('')}
             </div>
           </div>
         `;
@@ -206,8 +203,8 @@
 
     const fetchRecommendations = async () => {
       const selected = getSelectedMoods();
-      if (!selected.length){
-        results.innerHTML = '<div class="sub">Choose at least one mood to see recommendations.</div>';
+      if (!selected.length) {
+        results.innerHTML = `<div class="sub">Choose at least one mood.</div>`;
         return;
       }
 
@@ -217,11 +214,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ moods: selected })
         });
+
         const data = await response.json();
         render(data.recommendations);
+
       } catch (err) {
-        console.error('Error fetching recommendations:', err);
-        results.innerHTML = '<div class="sub">Failed to fetch recommendations. Try again later.</div>';
+        console.error(err);
+        results.innerHTML = `<div class="sub">Failed to fetch recommendations.</div>`;
       }
     };
 
