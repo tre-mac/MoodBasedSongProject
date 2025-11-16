@@ -63,8 +63,6 @@
 
     .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .badge{font-size:.75rem;padding:4px 8px;border-radius:999px;background:#10143a;border:1px solid rgba(255,255,255,.12);color:#b6c3ff}
-    .link{margin-left:auto}
-    .link a{color:var(--accent);text-decoration:none;font-weight:700}
 
     footer{margin:30px 0;color:var(--muted);font-size:.9rem}
   </style>
@@ -104,7 +102,7 @@
     </section>
 
     <footer>
-      Tip: Results are ranked by how many of your moods each track matches. Click a title to open a YouTube search for quick listening.
+      Tip: Results are ranked by how many of your moods each track matches.
     </footer>
   </div>
 
@@ -154,10 +152,11 @@
     };
 
     toggle.addEventListener('click', () => {
-      dropdown.classList.toggle('open'));
+      dropdown.classList.toggle('open');  <!-- FIXED -->
       toggle.setAttribute('aria-expanded', dropdown.classList.contains('open'));
       if (dropdown.classList.contains('open')) filterInput.focus();
     });
+
     document.addEventListener('click', (e) => {
       if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
     });
@@ -180,8 +179,7 @@
 
     optionsWrap.addEventListener('change', setSelectedChips);
 
-    const toYT = (title, artist) =>
-      `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
+    const toYT = (title, artist) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`)}`;
 
     const render = (items) => {
       results.innerHTML = '';
@@ -240,4 +238,3 @@
   </script>
 </body>
 </html>
-
